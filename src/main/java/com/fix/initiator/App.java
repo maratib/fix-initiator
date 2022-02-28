@@ -1,16 +1,17 @@
-package com.fix.acceptor;
+package com.fix.initiator;
 
 import java.io.InputStream;
 
-import quickfix.Acceptor;
+import quickfix.Application;
 import quickfix.DefaultMessageFactory;
 import quickfix.FileLogFactory;
 import quickfix.FileStoreFactory;
+import quickfix.Initiator;
 import quickfix.LogFactory;
 import quickfix.MessageFactory;
 import quickfix.MessageStoreFactory;
 import quickfix.SessionSettings;
-import quickfix.SocketAcceptor;
+import quickfix.SocketInitiator;
 
 /**
  * Hello world!
@@ -21,23 +22,33 @@ public class App {
 
         try {
 
-            quickfix.Application acceptorApp = new Application();
+            // Your application
+            Application initiatorApplication = new InitiatorApplication();
             SessionSettings settings = getSettingsInputStream();
 
+            // Message store
             MessageStoreFactory storeFactory = new FileStoreFactory(settings);
+
+            // Logs
             LogFactory logFactory = new FileLogFactory(settings);
+
+            // Message factory
             MessageFactory messageFactory = new DefaultMessageFactory();
-            Acceptor acceptor = new SocketAcceptor(acceptorApp, storeFactory, settings, logFactory, messageFactory);
+
+            // Initiator instance
+            Initiator acceptor = new SocketInitiator(initiatorApplication, storeFactory, settings, logFactory,
+                    messageFactory);
+
             acceptor.start();
             boolean condition = true;
 
-            System.out.println("FIX Acceptor STARTED!");
+            System.out.println("FIX Initiator STARTED!");
             while (condition == true) {
                 Thread.sleep(100);
             }
             acceptor.stop();
 
-            System.out.println("Hello FIX Acceptor!");
+            System.out.println("Hello FIX Initiator!");
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -49,7 +60,7 @@ public class App {
 
         InputStream inputStream = null;
         SessionSettings settings = null;
-        inputStream = App.class.getResourceAsStream("executor.cfg");
+        inputStream = App.class.getResourceAsStream("initiator.cfg");
 
         if (inputStream == null) {
             System.out.println("usage: " + App.class.getName() + " [configFile is missing]");
